@@ -1,0 +1,14 @@
+{
+  "name": "soundcloud",
+  "version": "0.0.0",
+  "description": "soundcloud helper api",
+  "main": "index.js",
+  "repository": "http://git.khalidhoffman.net/soundcloud.git",
+  "author": "Khalid Hoffman <khalidhoffman@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "debuggable": "https://github.com/khalidhoffman/debuggable.git",
+    "lodash": "^4.17.4",
+    "superagent": "^3.3.2"
+  }
+}
