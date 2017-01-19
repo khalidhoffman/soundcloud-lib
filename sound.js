@@ -1,34 +1,31 @@
 const _ = require('lodash'),
 
-    Debuggable = require('debuggable'),
-    SoundMeta = require('./sound-meta');
+    Debuggable = require('debuggable');
 
 class Sound extends Debuggable {
 
     /**
      *
-     * @param {SoundMeta} mp3Meta
-     * @param {String} url
+     * @param {Object} mp3Meta
      * @param {Object} [options]
      * @constructor
      */
-    constructor(mp3Meta, url, options) {
+    constructor(mp3Meta, options) {
         super({
             debugTag: 'Sound: ',
             debugLevel: Debuggable.PROD
         });
-        this.meta = mp3Meta instanceof SoundMeta ? mp3Meta : new SoundMeta(mp3Meta);
+        this.meta = mp3Meta;
         this.config = _.defaults(options, {
-            artworkURL: this.meta.get('artwork_url'),
-            artworkExtension: '.jpg',
-            url : url
+            artworkURL: this.meta['artwork_url'],
+            artworkExtension: '.jpg'
         });
 
     }
 
     /**
      *
-     * @returns {SoundMeta}
+     * @returns {Object}
      */
     getMeta(){
         return this.meta;
@@ -38,8 +35,16 @@ class Sound extends Debuggable {
         return this.meta[key];
     }
 
+    set(key, val){
+        return this.meta[key] = val;
+    }
+
     getId(){
         return this.meta.id;
+    }
+
+    getTitle(){
+        return this.meta.title;
     }
 
     getArtworkURL(){
@@ -51,7 +56,7 @@ class Sound extends Debuggable {
     }
 
     isValid() {
-        return !!this.meta.get('stream_url');
+        return !!this.meta['stream_url'];
     }
 }
 

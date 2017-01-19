@@ -1,29 +1,17 @@
 const _ = require('lodash'),
 
-    Sound = require('./sound'),
-    SoundMeta = require('./sound-meta');
+    Sound = require('./sound');
 
 class SoundCollection {
     /**
      *
-     * @param config
-     * @param config.meta
-     * @param config.clientId
+     * @param meta
      */
-    constructor(config) {
-        const defaults = {
-            meta: {
-                title: 'n/a',
-                tracks: []
-            },
-            local: true
-        };
-
-        this.config = _.defaults(config, defaults);
-        this.meta = this.config.meta;
-        this.sounds = this.config.meta.tracks.map((songMeta) => {
-            if (!songMeta['stream_url']) console.warn('invalid song found: %s', songMeta.title);
-            return new SoundMeta(songMeta)
+    constructor(meta) {
+        this.meta = meta;
+        this.sounds = this.meta.tracks.map((soundMeta) => {
+            if (!soundMeta['stream_url']) console.warn('invalid song found: %s', soundMeta.title);
+            return new Sound(soundMeta)
         });
     }
 
@@ -33,18 +21,18 @@ class SoundCollection {
 
     /**
      *
-     * @param {SoundMeta[]|SoundFileMeta[]|Object[]} sounds
+     * @param {Sound[]|Object[]} sounds
      */
     setSounds(sounds) {
         this.sounds = sounds.map((sound) => {
-            if (sound instanceof SoundMeta) {
+            if (sound instanceof Sound) {
                 return sound
-            } else if (sound instanceof Sound) {
-                return sound.getMeta();
             } else {
-                return new SoundMeta(sound);
+                return new Sound(sound);
             }
         });
+
+        this.set('tracks', this.sounds.map(sound=> sound.toJSON()))
     }
 
     toJSON() {
@@ -57,6 +45,14 @@ class SoundCollection {
 
     getTitle() {
         return this.meta.title;
+    }
+
+    get(propName){
+        return this.meta[propName];
+    }
+
+    set(propName, val){
+        return this.meta[propName] = val;
     }
 
 }
