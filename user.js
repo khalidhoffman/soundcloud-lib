@@ -36,7 +36,6 @@ class User {
         return Promise.reject(err);
     }
 
-
     /**
      *
      * @returns {Promise}
@@ -86,6 +85,7 @@ class User {
      */
     _updatePlayList(playList) {
         return new Promise((resolve, reject) => {
+
             const accessibleProps = ['title', 'tracks'],
                 playListMeta = playList instanceof SoundFilePlayList ? playList.toJSON() : playList,
                 formData = {
@@ -93,8 +93,8 @@ class User {
                     format: 'json',
                     client_id: this._config.clientId
                 },
-                encodedFormData = form.encode(formData),
-                scPlayListAPIURL = `https://api.soundcloud.com/playlists`;
+                encodedFormData = form.encode(formData);
+
             request.put(playListMeta.uri)
                 .type('form')
                 .query({
@@ -116,8 +116,8 @@ class User {
      * @returns {Promise}
      */
     fetchUserMeta() {
-        let self = this;
         return new Promise((resolve, reject) => {
+
             if (!this.isLoggedIn()) {
                 request.get('http://api.soundcloud.com/resolve/')
                     .query({
