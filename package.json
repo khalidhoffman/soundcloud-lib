@@ -1,12 +1,12 @@
 {
-  "name": "soundcloud",
+  "name": "soundcloud-lib",
   "version": "0.0.0",
   "description": "soundcloud helper api",
   "scripts": {
     "test": "mocha"
   },
   "main": "index.js",
-  "repository": "http://git.khalidhoffman.net/soundcloud.git",
+  "repository": "http://git.khalidhoffman.net/soundcloud-lib.git#v1/wip",
   "author": "Khalid Hoffman <khalidhoffman@gmail.com>",
   "license": "MIT",
   "dependencies": {
