@@ -1,4 +1,5 @@
 const util = require('util'),
+    url = require('url'),
 
     request = require('superagent'),
     form = require('form-urlencoded'),
@@ -22,6 +23,7 @@ class User {
         this._config = _.defaults(_.isString(username) ? options : username, {
             clientId: 'INVALID_SOUNDCLOUD_CLIENT_ID',
             accessToken: '',
+            apiURL: 'https://api.soundcloud.com',
             meta: {
                 permalink_url: `http://soundcloud.com/${username}`
             }
@@ -43,12 +45,10 @@ class User {
      */
     _getPlayLists() {
         return new Promise((resolve, reject) => {
-            request.get(`${this.userURI}/playlists`)
-                .set({
-                    'Authorization': `Bearer ${this._config.accessToken}`
-                })
+            request.get(url.resolve(this._config.apiURL, `/me/playlists`))
                 .query({
-                    client_id: this._config.clientId
+                    client_id: this._config.clientId,
+                    oauth_token: this._config.accessToken
                 })
                 .end((err, response) => {
                     if (err) {
