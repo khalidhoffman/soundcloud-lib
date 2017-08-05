@@ -1,6 +1,6 @@
 TODO
 /tmp
-/.env.json
+.env
 public/images
 public/media
 public/data

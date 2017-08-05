@@ -1,6 +1,5 @@
-const _ = require('lodash'),
-
-    Debuggable = require('debuggable');
+const _ = require('lodash');
+const Debuggable = require('debuggable');
 
 class Sound extends Debuggable {
 

@@ -1,6 +1,4 @@
-const _ = require('lodash'),
-
-    Sound = require('./sound');
+const Sound = require('./sound');
 
 class SoundCollection {
     /**

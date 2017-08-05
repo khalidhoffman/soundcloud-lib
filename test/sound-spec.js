@@ -1,5 +1,7 @@
-const expect = require('expect.js'),
-    _ = require('lodash');
+const chai = require('chai');
+const _ = require('lodash');
+
+const expect = chai.expect;
 
 
 describe("Sound", function () {
@@ -13,7 +15,7 @@ describe("Sound", function () {
                 artist: 'test artist',
                 genre: 'test genre'
             });
-            expect(_.isPlainObject(mp3Meta.toJSON())).to.be(true, 'result should be plain object');
+            expect(_.isPlainObject(mp3Meta.toJSON())).to.eql(true, 'result should be plain object');
         });
     });
 
