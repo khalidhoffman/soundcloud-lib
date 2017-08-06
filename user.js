@@ -86,9 +86,7 @@ class User {
 				oauth_token: this._config.accessToken
 			})
 			.send(form.encode(formData))
-			.then((err, response) => {
-				return response.body;
-			})
+			.then(response => response.body);
 	}
 
 	/**
@@ -105,10 +103,7 @@ class User {
 				url: this.userURL,
 				client_id: this._config.clientId
 			})
-			.then(response => {
-				this.setUserMeta(response.body);
-				return this.meta
-			})
+			.then(response => this.setUserMeta(response.body));
 
 	}
 
@@ -132,6 +127,7 @@ class User {
 		this.meta = data;
 		if (this.meta.permalink_url) this.userURL = this.meta.permalink_url;
 		if (this.meta.uri) this.userURI = this.meta.uri;
+		return this.meta;
 	}
 
 	/**
