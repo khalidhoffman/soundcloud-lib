@@ -1,20 +1,20 @@
 const url = require('url');
 const request = require('superagent');
-const form = require('form-urlencoded');
-const _ = require('lodash'),
+const formurlencoded = require('form-urlencoded');
+const _ = require('lodash');
 
-	SoundFilePlayList = require('./sound-collection');
+const SoundCollection = require('./sound-collection');
 
 class User {
 
 	/**
 	 *
 	 * @param {String} [username]
-	 * @param [options]
-	 * @param [options.cachePath]
-	 * @param [options.clientId]
-	 * @param [options.meta]
-	 * @param [options.saveDir]
+	 * @param {Object} [options]
+	 * @param {String} [options.cachePath]
+	 * @param {String} [options.clientId]
+	 * @param {Object} [options.meta]
+	 * @param {String} [options.saveDir]
 	 * @constructor
 	 */
 	constructor(username, options) {
@@ -28,9 +28,14 @@ class User {
 		});
 
 		this.setUserMeta(this._config.meta);
-		this.playLists = [];
+		this.playlists = [];
 	}
 
+	/**
+	 *
+	 * @returns {Promise}
+	 * @private
+	 */
 	_onError(err) {
 		console.error(err);
 		return Promise.reject(err);
@@ -41,19 +46,19 @@ class User {
 	 * @returns {Promise}
 	 * @private
 	 */
-	_getPlayLists() {
+	_getPlaylists() {
 		return request.get(url.resolve(this._config.apiURL, `/me/playlists`))
 			.query({
 				client_id: this._config.clientId,
 				oauth_token: this._config.accessToken
 			})
 			.then(response => {
-				return this.playLists = _.chain(response.body)
-					.uniqBy(function (playListMeta) {
-						return playListMeta.title
+				return this.playlists = _.chain(response.body)
+					.uniqBy(function (playlistMeta) {
+						return playlistMeta.title
 					})
 					.map((playlistMeta) => {
-						return new SoundFilePlayList(
+						return new SoundCollection(
 							playlistMeta,
 							{
 								clientId: this._config.clientId,
@@ -67,31 +72,62 @@ class User {
 
 	/**
 	 *
-	 * @param {Object|SoundCollection} playList
+	 * @param {Object|SoundCollection} playlist
 	 * @returns {Promise}
 	 * @private
 	 */
-	_updatePlayList(playList) {
+	_updatePlaylist(playlist) {
 		const accessibleProps = ['title', 'tracks'];
-		const playListMeta = playList instanceof SoundFilePlayList ? playList.toJSON() : playList;
+		const playlistMeta = playlist instanceof SoundCollection ? playlist.toJSON() : playlist;
+		const playlistUri = playlistMeta.uri || `http://api.soundcloud.com/playlists/${playlistMeta.id}`;
 		const formData = {
-			playlist: _.pick(playListMeta, accessibleProps),
+			playlist: _.chain(playlistMeta)
+				.pick(playlistMeta, accessibleProps)
+				.set('playlist.tracks', playlistMeta.tracks.map(track => _.pick(track, ['id'])))
+				.value(),
 			format: 'json',
-			client_id: this._config.clientId
+			client_id: this._config.clientId,
+			oauth_token: this._config.accessToken
 		};
+		const encodedFormData = formurlencoded(formData);
 
-		return request.put(playListMeta.uri)
-			.type('form')
-			.query({
-				oauth_token: this._config.accessToken
-			})
-			.send(form.encode(formData))
+		return request.put(playlistUri)
+			.set('Content-Type', 'application/x-www-form-urlencoded')
+			.query({oauth_token: this._config.accessToken})
+			.send(encodedFormData)
 			.then(response => response.body);
 	}
 
 	/**
 	 *
+	 * @param {Object|SoundCollection} playlist
 	 * @returns {Promise}
+	 * @private
+	 */
+	_createPlaylist(playlist) {
+		const accessibleProps = ['title', 'tracks'];
+		const playlistMeta = playlist instanceof SoundCollection ? playlist.toJSON() : playlist;
+		const formData = {
+			playlist: _.chain(playlistMeta)
+				.pick(playlistMeta, accessibleProps)
+				.set('playlist.tracks', playlistMeta.tracks.map(track => _.pick(track, ['id'])))
+				.value(),
+			format: 'json',
+			client_id: this._config.clientId,
+			oauth_token: this._config.accessToken
+		};
+		const encodedFormData = formurlencoded(formData);
+
+		return request.post('http://api.soundcloud.com/playlists/')
+			.set('Content-Type', 'application/x-www-form-urlencoded')
+			.query({oauth_token: this._config.accessToken})
+			.send(encodedFormData)
+			.then(response => response.body);
+	}
+
+	/**
+	 *
+	 * @returns {Promise.<Object>}
 	 */
 	fetchUserMeta() {
 		if (this.isLoggedIn()) {
@@ -109,19 +145,23 @@ class User {
 
 	/**
 	 *
-	 * @returns {Promise}
+	 * @returns {Promise.<Object>}
 	 */
 	login() {
 		return this.fetchUserMeta();
 	}
 
+	/**
+	 *
+	 * @returns {Boolean}
+	 */
 	isLoggedIn() {
 		return !!this.meta.id;
 	}
 
 	/**
 	 *
-	 * @param {Object} data should be unadulterated soundcloud data
+	 * @param {Object} data - should be unadulterated soundcloud data
 	 */
 	setUserMeta(data) {
 		this.meta = data;
@@ -132,22 +172,59 @@ class User {
 
 	/**
 	 *
-	 * @returns {Promise}
+	 * @returns {Promise.<SoundCollection[]>}
 	 */
-	getPlayLists() {
+	getPlaylists() {
 		return this.login()
-			.then(() => this._getPlayLists())
+			.then(() => this._getPlaylists())
 			.catch(this._onError);
 	}
 
 	/**
 	 *
-	 * @param {SoundCollection} playList
+	 * @param {String} playlistName
+	 * @returns {Promise.<SoundCollection>}
+	 */
+	getPlaylist(playlistName) {
+		return this.getPlaylists()
+			.then(playlists => {
+				return _.find(playlists, (playlist => {
+					return playlist.get('title') === playlistName;
+				}));
+			})
+			.catch(this._onError);
+	}
+
+	/**
+	 *
+	 * @param {String} playlistName
+	 * @returns {Promise.<Boolean>}
+	 */
+	hasPlaylist(playlistName) {
+		return this.getPlaylist(playlistName)
+			.then(playlist => !!playlist)
+			.catch(this._onError);
+	}
+
+	/**
+	 *
+	 * @param {SoundCollection} playlist
 	 * @returns {Promise}
 	 */
-	setPlayList(playList) {
+	setPlaylist(playlist) {
 		return this.login()
-			.then(() => this._updatePlayList(playList))
+			.then(() => this._updatePlaylist(playlist))
+			.catch(this._onError);
+	}
+
+	/**
+	 *
+	 * @param {SoundCollection} playlist
+	 * @returns {Promise}
+	 */
+	createPlaylist(playlist) {
+		return this.login()
+			.then(() => this._createPlaylist(playlist))
 			.catch(this._onError);
 	}
 }

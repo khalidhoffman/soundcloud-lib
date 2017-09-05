@@ -4,35 +4,35 @@ const assert = require("assert");
 
 const SoundCollection = require('../sound-collection');
 
-const playListsTestData = (function () {
-	let testData = [{tracks: [{id: 1}, {id: 2}]}];
+const playlistsTestData = (function () {
+	let testPlaylistData = [{tracks: [{id: 1}, {id: 2}]}];
 	try {
-		testData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/test-data.json')));
+		testPlaylistData = JSON.parse(fs.readFileSync(path.join(__dirname, './support/test-data.json')));
 	} catch (err) {
 		console.error(err);
 	}
-	return testData;
+	return testPlaylistData;
 })();
 
 module.exports = {
 	'SoundCollection': {
 		'#setSounds()': {
-			"should set meta data as well": function () {
-				const tPlayList = new SoundCollection(playListsTestData[0]);
-				const newSounds = tPlayList.getSounds().map((sound, index, sounds) => {
+			"can reorder a playlist": function () {
+				const tPlaylist = new SoundCollection(playlistsTestData[0]);
+				const newSounds = tPlaylist.getSounds().map((sound, index, sounds) => {
 					if (index === 0) return sounds[1];
 					if (index === 1) return sounds[0];
 					return sound;
 				});
 
-				assert(tPlayList.getSounds()[0].get('id') !== newSounds[0].get('id'));
-				assert(tPlayList.getSounds()[1].get('id') !== newSounds[1].get('id'));
+				assert(tPlaylist.getSounds()[0].get('id') !== newSounds[0].get('id'));
+				assert(tPlaylist.getSounds()[1].get('id') !== newSounds[1].get('id'));
 
 				// set new sounds
-				tPlayList.setSounds(newSounds);
+				tPlaylist.setSounds(newSounds);
 
-				assert(tPlayList.getSounds()[0].get('id') === newSounds[0].get('id'));
-				assert(tPlayList.getSounds()[1].get('id') === newSounds[1].get('id'));
+				assert(tPlaylist.getSounds()[0].get('id') === newSounds[0].get('id'));
+				assert(tPlaylist.getSounds()[1].get('id') === newSounds[1].get('id'));
 
 			}
 		}

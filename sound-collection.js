@@ -11,6 +11,7 @@ class SoundCollection {
             if (!soundMeta['stream_url']) console.warn('invalid song found: %s', soundMeta.title);
             return new Sound(soundMeta)
         });
+		this.meta.uri = this.meta.uri || `http://api.soundcloud.com/playlists/${this.meta.id}`
     }
 
     getSounds() {

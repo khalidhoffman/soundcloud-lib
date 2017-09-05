@@ -10,7 +10,6 @@
   "author": "Khalid Hoffman <khalidhoffman@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "debuggable": "https://github.com/khalidhoffman/debuggable.git",
     "form-urlencoded": "^2.0.4",
     "lodash": "^4.17.4",
     "superagent": "^3.5.2"

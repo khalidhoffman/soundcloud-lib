@@ -1,7 +1,6 @@
 const _ = require('lodash');
-const Debuggable = require('debuggable');
 
-class Sound extends Debuggable {
+class Sound {
 
     /**
      *
@@ -9,18 +8,13 @@ class Sound extends Debuggable {
      * @param {Object} [options]
      * @constructor
      */
-    constructor(mp3Meta, options) {
-        super({
-            debugTag: 'Sound: ',
-            debugLevel: Debuggable.PROD
-        });
-        this.meta = mp3Meta;
-        this.config = _.defaults(options, {
-            artworkURL: this.meta['artwork_url'],
-            artworkExtension: '.jpg'
-        });
-
-    }
+	constructor(mp3Meta, options) {
+		this.meta = mp3Meta;
+		this.config = Object.assign({
+			artworkURL: this.meta['artwork_url'],
+			artworkExtension: '.jpg'
+		}, options);
+	}
 
     /**
      *

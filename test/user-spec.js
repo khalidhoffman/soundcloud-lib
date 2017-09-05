@@ -17,9 +17,9 @@ describe.skip("User", function () {
 
 	it("can find union of 'Cruise' and '4' playlist", function () {
 
-		return testUser.getPlayLists()
-			.then(function (err, playLists) {
-				let mostPopularSongs = _.chain(playLists)
+		return testUser.getPlaylists()
+			.then(function (err, playlists) {
+				let mostPopularSongs = _.chain(playlists)
 					.reduce((collection, playlist) => {
 						if (playlist.getTitle().match(/(cruise)|(^4$)/i)) {
 							collection.push(playlist);
@@ -43,13 +43,13 @@ describe.skip("User", function () {
 
 	});
 
-	describe("getPlayLists()", function () {
+	describe("getPlaylists()", function () {
 
 		it("passes an array of playlists", function () {
-			return testUser.getPlayLists()
-				.then(function (playLists) {
-					expect(playLists).to.exist;
-					expect(playLists).to.be.an('array');
+			return testUser.getPlaylists()
+				.then(function (playlists) {
+					expect(playlists).to.exist;
+					expect(playlists).to.be.an('array');
 				});
 		})
 	});
